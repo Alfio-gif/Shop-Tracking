@@ -1,6 +1,6 @@
 {
-  "name": "Nome Completo Web App",
-  "short_name": "NomeApp",
+  "name": "Gestione Spese Personali - Shop Tracking",
+  "short_name": "ShopTracking",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
