@@ -1,5 +1,5 @@
 {
-  "name": "Gestione Spese Personali - Shop Tracking",
+  "name": "Shop Tracking",
   "short_name": "ShopTracking",
   "start_url": "./index.html",
   "display": "standalone",
