@@ -1,6 +1,6 @@
 {
   "name": "Shop Tracking",
-  "short_name": "ShopTrack",
+  "short_name": "Shop Track",
   "description": "App per tracciare spese, entrate, grafici e statistiche personali.",
   "lang": "it-IT",
   "start_url": "./index.html",
