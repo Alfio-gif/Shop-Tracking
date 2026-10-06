@@ -13,25 +13,25 @@
   "icons": [
     {
       "src": "./icons/icon-192.png",
-      "sizes": "150x150",
+      "sizes": "100x100",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "./icons/icon-512.png",
-      "sizes": "412x412",
+      "sizes": "312x312",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "./icons/maskable-icon-192.png",
-      "sizes": "150x150",
+      "sizes": "100x100",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
       "src": "./icons/maskable-icon-512.png",
-      "sizes": "412x412",
+      "sizes": "312x312",
       "type": "image/png",
       "purpose": "maskable"
     }
