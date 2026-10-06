@@ -13,7 +13,7 @@
   "icons": [
     {
       "src": "./icons/favicon.ico",
-      "sizes": "",
+      "sizes": "16x16",
       "type": "image/png",
       "purpose": "any"
     },{
