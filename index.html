@@ -70,6 +70,7 @@ summary{cursor:pointer;padding:8px 10px;display:flex;justify-content:space-betwe
 <button data-p="p1" class="on">💸 Spese</button>
 <button data-p="p2">📊 Grafici</button>
 <button data-p="p3">💾 Dati e Backup</button>
+<button data-p="p4" id="tf" class="hid">👨‍👧‍👦 Famiglia</button>
 </nav>
 
 <section id="p1">
@@ -108,13 +109,33 @@ summary{cursor:pointer;padding:8px 10px;display:flex;justify-content:space-betwe
 <label class="b s" style="display:block;text-align:center;cursor:pointer;margin-bottom:6px">⬆️ Importa JSON<input id="imp" type="file" accept=".json,application/json" class="hid"></label>
 <button class="b d" id="rs" style="width:100%">🗑️ Cancella tutti i dati</button>
 <p class="mu" id="inf"></p></div>
+<div class="c"><h3>☁️ Sincronizzazione</h3>
+<div class="g">
+<input id="sn" class="f" maxlength="40" placeholder="Nome di chi usa questo telefono">
+<input id="sk" class="f" type="password" autocomplete="off" placeholder="Chiave di sincronizzazione">
+<button class="b f" id="sv">☁️ Salva e sincronizza</button>
+</div>
+<p class="mu" id="ss" style="padding:6px 0 0"></p></div>
+<div class="c"><h3>👨‍👧‍👦 Area genitore</h3>
+<div class="g">
+<input id="fp" class="f" type="password" autocomplete="off" placeholder="Password Famiglia">
+<button class="b" id="fo">🔓 Apri Famiglia</button>
+<button class="b s" id="fx">🔒 Nascondi</button>
+</div>
+<p class="mu" id="fs" style="padding:6px 0 0"></p></div>
 <div class="c"><h3>📲 Installazione</h3><p style="margin:0;color:var(--mu)">Su PC usa l'icona di installazione nella barra degli indirizzi; su telefono usa "Aggiungi a schermata Home" dal menu del browser. I dati restano sul dispositivo: fai backup regolari.</p></div>
+</section>
+
+<section id="p4" class="hid">
+<div class="c"><h3>👨‍👧‍👦 Spese della famiglia</h3>
+<div class="row"><select id="fmm"></select><button class="b s" id="fr" style="flex:none" title="Aggiorna">🔄</button></div></div>
+<div id="fl"></div>
 </section>
 </div>
 
 <script>
-const CATS=[["Alimentari","🛒"],["Pizza","🍕"],["Ristorante","🍽️"],["Bar e caffè","☕"],["Trasporti","🚌"],["Carburante","⛽"],["Auto","🚗"],["Mutuo","🏠"],["Bollette","💡"],["Internet","📱"],["Telefono","📱"],["Salute","🩺"],["Farmacia","💊"],["Abbigliamento","👕"],["Scarpe","👟"],["Cura della persona","💇"],["Sport","🏋️"],["Svago","🎬"],["Viaggi","✈️"],["Hotel","🏨"],["Istruzione","🎓"],["Libri","📚"],["Tecnologia","💻"],["Regali","🎁"],["Animali","🐾"],["Risparmi","💰"],["Arredo","🛋️"],["Casa","🛋️"],["Abbonamenti","📺"],["Tasse","🏛️"],["Assicurazioni","🛡️"],["Donazioni","❤️"],["Altro","📦"]];
-const PAY=[["Carta di debito","💳"],["Carta di credito","💳"],["Trasferimento di denaro","💶"],["Salvadanaio","💰"],["Contanti","💶"],["Prelievo Bancomat","🏧"],["Addebito diretto","🏦"],["Bonifico","🏦"],["PayPal","🅿️"],["PagoPa","📲"],["Google Pay","📱"],["Altro","➖"]];
+const CATS=[["Alimentari","🛒"],["Pizza","🍕"],["Ristorante","🍽️"],["Bar e caffè","☕"],["Trasporti","🚌"],["Carburante","⛽"],["Auto","🚗"],["Affitto/Mutuo","🏠"],["Bollette","💡"],["Internet/Telefono","📱"],["Salute","🩺"],["Farmacia","💊"],["Abbigliamento","👕"],["Scarpe","👟"],["Bellezza","💇"],["Sport","🏋️"],["Svago","🎬"],["Viaggi","✈️"],["Hotel","🏨"],["Istruzione","🎓"],["Libri","📚"],["Tecnologia","💻"],["Regali","🎁"],["Animali","🐾"],["Risparmi","💰"],["Casa/Arredo","🛋️"],["Abbonamenti","📺"],["Tasse","🏛️"],["Assicurazioni","🛡️"],["Donazioni","❤️"],["Altro","📦"]];
+const PAY=[["Carta di debito","💳"],["Carta di credito","💳"],["Trasferimento di denaro","💶"],["Salvadanaio","💰"],["Contanti","💶"],["Prelievo Bancomat","🏧"],["Addebito diretto","🏦"],["Bonifico","🏦"],["PayPal","🅿️"],["PagoPa","📲"],["Google Pay","📱"],["Buoni pasto","🎟️"],["Altro","➖"]];
 const byName=(a,b)=>a[0]=="Altro"?1:b[0]=="Altro"?-1:a[0].localeCompare(b[0],"it",{sensitivity:"base"});CATS.sort(byName);PAY.sort(byName); // ordine alfabetico, "Altro" sempre ultimo
 const COL=["#4f46e5","#ef4444","#10b981","#f59e0b","#06b6d4","#ec4899","#8b5cf6","#84cc16","#f97316","#14b8a6","#6366f1","#eab308"];
 const K="shoptracking.v1";
@@ -122,7 +143,7 @@ let D=[],mem={},open=new Set();
 const $=i=>document.getElementById(i);
 const st={get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}};
 try{D=JSON.parse(st.get(K)||"[]")}catch(e){D=[]}
-const save=()=>st.set(K,JSON.stringify(D));
+const save=()=>{st.set(K,JSON.stringify(D));queueSync()};
 const eur=n=>n.toLocaleString("it-IT",{style:"currency",currency:"EUR"});
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad=n=>String(n).padStart(2,"0");
@@ -186,7 +207,7 @@ $("list").addEventListener("click",e=>{const ed=e.target.closest("[data-ed]");if
 $("list").addEventListener("toggle",e=>{const d=e.target.dataset.d;if(d)e.target.open?open.add(d):open.delete(d)},true);
 $("oa").onclick=()=>document.querySelectorAll("#list details").forEach(d=>d.open=true);
 $("ca").onclick=()=>document.querySelectorAll("#list details").forEach(d=>d.open=false);
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));["p1","p2","p3"].forEach(p=>$(p).classList.toggle("hid",p!=b.dataset.p));renderCharts()});
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));["p1","p2","p3","p4"].forEach(p=>$(p).classList.toggle("hid",p!=b.dataset.p));renderCharts();if(b.dataset.p=="p4")loadFam()});
 
 // Backup
 const dl=(name,txt,type)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
@@ -211,6 +232,72 @@ function icon(s){const c=document.createElement("canvas");c.width=c.height=s;con
 try{const i192=icon(192),i512=icon(512);$("logo").src=i192;$("fav").href=icon(64);$("apl").href=i192;
  const m={name:"Shop Tracking",short_name:"Shop Tracking",description:"Contabilità Personale",start_url:location.href.split("#")[0],scope:location.href.split("#")[0],display:"standalone",background_color:"#12111c",theme_color:"#4f46e5",icons:[{src:i192,sizes:"192x192",type:"image/png"},{src:i512,sizes:"512x512",type:"image/png",purpose:"any"}]};
  $("man").href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/manifest+json"}))}catch(e){}
+
+// ===== Sincronizzazione su Drive e sezione Famiglia =====
+const SYNC_URL="https://script.google.com/macros/s/AKfycbw8eKiGhxPh51-bd2zsms0uc72M43OESRBL1yE1w9qa2Gyph-IJUXrzNcVgGh8870oR5w/exec";
+const KU="shoptracking.uid",KN="shoptracking.nome",KC="shoptracking.chiave",KP="shoptracking.famiglia",KD="shoptracking.dirty";
+let uid=st.get(KU);
+if(!uid){uid=(Math.random().toString(36).slice(2)+Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,"").slice(0,24);st.set(KU,uid)}
+let syncT=null,syncBusy=false,syncDirty=false,famMese="";
+const sstat=m=>{$("ss").textContent=m};
+const hhmm=()=>new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+
+function queueSync(){syncDirty=true;st.set(KD,"1");clearTimeout(syncT);syncT=setTimeout(doSync,1500)}
+async function doSync(){
+ const nome=(st.get(KN)||"").trim(),chiave=(st.get(KC)||"").trim();
+ if(!nome||!chiave){sstat("⚠️ Inserisci nome e chiave per sincronizzare");return false}
+ if(syncBusy){syncDirty=true;return false}
+ if(!navigator.onLine){sstat("📴 Offline: invio appena torna la connessione");return false}
+ syncBusy=true;syncDirty=false;sstat("⏳ Sincronizzazione in corso…");
+ try{
+  const r=await fetch(SYNC_URL,{method:"POST",body:JSON.stringify({azione:"salva",chiave,uid,nome,spese:D})});
+  const j=await r.json();
+  if(!j.ok)throw new Error(j.errore||"errore sconosciuto");
+  if(!syncDirty)st.set(KD,"0");
+  sstat("✅ Sincronizzato alle "+hhmm()+" ("+j.numero+" spese)");
+  syncBusy=false;if(syncDirty)queueSync();
+  return true
+ }catch(err){syncBusy=false;st.set(KD,"1");sstat("❌ Sincronizzazione non riuscita: "+err.message);return false}
+}
+$("sn").value=st.get(KN)||"";$("sk").value=st.get(KC)||"";
+$("sv").onclick=()=>{const n=$("sn").value.trim(),k=$("sk").value.trim();
+ if(!n||!k){sstat("⚠️ Inserisci nome e chiave");return}
+ st.set(KN,n);st.set(KC,k);doSync()};
+window.addEventListener("online",()=>{if(st.get(KD)==="1")doSync()});
+setInterval(()=>{if(st.get(KD)==="1")doSync()},120000);
+
+const famCall=async(pw,mese)=>(await fetch(SYNC_URL,{method:"POST",body:JSON.stringify({azione:"famiglia",password:pw,mese:mese||""})})).json();
+const showFam=on=>$("tf").classList.toggle("hid",!on);
+async function loadFam(){
+ const pw=st.get(KP);if(!pw)return;
+ $("fl").innerHTML='<div class="mu">⏳ Caricamento…</div>';
+ try{
+  const j=await famCall(pw,famMese);
+  if(!j.ok)throw new Error(j.errore||"errore sconosciuto");
+  famMese=j.mese;
+  const ms=[...new Set([...j.mesi,j.mese,today().slice(0,7)])].sort().reverse();
+  $("fmm").innerHTML=ms.map(m=>`<option value="${m}">${fmtMon(m)}</option>`).join("");$("fmm").value=j.mese;
+  const tot=j.persone.reduce((s,p)=>s+p.totale,0);
+  $("fl").innerHTML=`<div class="tot" style="grid-template-columns:1fr"><div><small>Totale famiglia · ${esc(fmtMon(j.mese))}</small><b>${eur(tot)}</b></div></div>`+
+   (j.persone.length?j.persone.map(p=>{
+    const cats=Object.entries(p.categorie).sort((a,b)=>b[1]-a[1]);
+    const agg=p.aggiornato?new Date(p.aggiornato).toLocaleString("it-IT",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"—";
+    return `<details><summary><span>👤 ${esc(p.nome)}</span><span>${eur(p.totale)}</span></summary>`+
+     (cats.length?cats.map(([c,v])=>`<div class="e"><span class="i">${cIcon(c)}</span><div class="m"><b>${esc(c)}</b></div><span class="a">${eur(v)}</span></div>`).join(""):'<div class="e"><div class="m"><small>Nessuna spesa in questo mese</small></div></div>')+
+     `<div class="e"><div class="m"><small>${p.numero} spese · ultimo invio: ${esc(agg)}</small></div></div></details>`}).join(""):
+    '<div class="mu">Nessun dato ancora: fai sincronizzare i telefoni.</div>');
+ }catch(err){$("fl").innerHTML=`<div class="mu">❌ ${esc(err.message)}</div>`}
+}
+$("fmm").onchange=()=>{famMese=$("fmm").value;loadFam()};
+$("fr").onclick=loadFam;
+$("fo").onclick=async()=>{const pw=$("fp").value;if(!pw)return;$("fs").textContent="⏳ Verifica…";
+ try{const j=await famCall(pw,"");if(!j.ok)throw new Error(j.errore||"errore sconosciuto");
+  st.set(KP,pw);$("fp").value="";$("fs").textContent="✅ Sezione Famiglia attiva su questo dispositivo";showFam(true);$("tf").click()}
+ catch(err){$("fs").textContent="❌ "+err.message}};
+$("fx").onclick=()=>{try{localStorage.removeItem(KP)}catch(e){}delete mem[KP];showFam(false);$("fs").textContent="🔒 Sezione Famiglia nascosta";
+ if(!$("p4").classList.contains("hid"))document.querySelector('nav button[data-p="p1"]').click()};
+if(st.get(KP))showFam(true);
+if((st.get(KN)||"")&&(st.get(KC)||""))doSync();
 
 render();
 setInterval(totals,60000);
